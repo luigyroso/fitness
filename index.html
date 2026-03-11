@@ -1,41 +1,1148 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fitness Tracker</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #0a0a0a;
-            color: #e0e0e0;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .container {
-            text-align: center;
-            padding: 2rem;
-        }
-        h1 {
-            font-size: 3rem;
-            background: linear-gradient(135deg, #00d4ff, #7b2ff7);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 1rem;
-        }
-        p {
-            font-size: 1.2rem;
-            color: #888;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Tu Entrenamiento</title>
+  <style>
+    /* ═══════════════════════════════════════════════════════
+       APPLE-INSPIRED DESIGN SYSTEM
+    ═══════════════════════════════════════════════════════ */
+    :root {
+      /* Apple's actual color tokens */
+      --label:           #1d1d1f;
+      --label-secondary: #6e6e73;
+      --label-tertiary:  #86868b;
+      --fill:            rgba(120,120,128,0.12);
+      --fill-secondary:  rgba(120,120,128,0.08);
+      --separator:       rgba(60,60,67,0.12);
+      --bg:              #f5f5f7;
+      --card:            #ffffff;
+      --blue:            #0071e3;
+      --blue-hover:      #0077ed;
+      --green:           #34c759;
+      --green-dark:      #30b350;
+      --orange:          #ff9f0a;
+      --red:             #ff3b30;
+
+      /* Consistent radii */
+      --radius-sm: 10px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+      --radius-xl: 24px;
+    }
+
+    * {
+      margin: 0; padding: 0; box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text',
+                   'Helvetica Neue', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--label);
+      min-height: 100vh;
+      min-height: 100dvh;
+      font-size: 17px;
+      line-height: 1.47;
+    }
+
+    /* ── SCREENS ─────────────────────────────────────── */
+    .screen { display: none; min-height: 100vh; min-height: 100dvh; flex-direction: column; }
+    .screen.active { display: flex; }
+
+    /* ── HOME ────────────────────────────────────────── */
+    .home-hero {
+      padding: 60px 24px 8px;
+    }
+    .home-hero h1 {
+      font-size: 34px;
+      font-weight: 700;
+      letter-spacing: 0.37px;
+      line-height: 1.12;
+    }
+    .home-hero p {
+      font-size: 17px;
+      color: var(--label-secondary);
+      margin-top: 4px;
+      font-weight: 400;
+    }
+
+    .day-cards {
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .day-card {
+      background: var(--card);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.04);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      user-select: none;
+      border: none;
+    }
+    .day-card:active {
+      transform: scale(0.97);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+    }
+
+    .day-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      flex-shrink: 0;
+    }
+    .day-icon-push { background: linear-gradient(135deg, #ff6b6b, #ee5a24); }
+    .day-icon-pull { background: linear-gradient(135deg, #54a0ff, #2e86de); }
+    .day-icon-legs { background: linear-gradient(135deg, #feca57, #f39c12); }
+    .day-icon svg { width: 26px; height: 26px; fill: #fff; }
+
+    .day-info { flex: 1; }
+    .day-info h2 { font-size: 20px; font-weight: 600; letter-spacing: -0.2px; }
+    .day-info p  { font-size: 15px; color: var(--label-tertiary); margin-top: 2px; }
+
+    .day-chevron {
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+    }
+    .day-chevron svg { width: 20px; height: 20px; fill: none; stroke: var(--label-tertiary); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+    /* Resume banner */
+    .resume-banner {
+      margin: 0 20px 12px;
+      background: var(--card);
+      border-radius: var(--radius-md);
+      padding: 16px 18px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.04);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      border-left: 4px solid var(--orange);
+    }
+    .resume-banner p {
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--label);
+    }
+    .resume-btns { display: flex; gap: 10px; }
+    .resume-btns button {
+      flex: 1;
+      padding: 12px;
+      border-radius: var(--radius-sm);
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+    }
+    .btn-resume { background: var(--blue); color: #fff; }
+    .btn-dismiss { background: var(--fill); color: var(--label); }
+
+    /* ── WORKOUT HEADER (frosted glass) ──────────────── */
+    .w-header {
+      background: rgba(245,245,247,0.82);
+      -webkit-backdrop-filter: saturate(180%) blur(20px);
+      backdrop-filter: saturate(180%) blur(20px);
+      padding: 10px 16px;
+      border-bottom: 0.5px solid var(--separator);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .back-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--blue);
+      min-width: 48px;
+      min-height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: var(--radius-sm);
+      font-size: 17px;
+      font-weight: 400;
+    }
+    .back-btn svg { width: 22px; height: 22px; fill: none; stroke: var(--blue); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+
+    .w-title {
+      font-size: 17px;
+      font-weight: 600;
+      flex: 1;
+      text-align: center;
+      letter-spacing: -0.2px;
+    }
+
+    .w-counter {
+      font-size: 15px;
+      color: var(--blue);
+      font-weight: 500;
+      cursor: pointer;
+      min-width: 48px;
+      min-height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: var(--radius-sm);
+    }
+    .w-counter:active { background: var(--fill); }
+
+    .progress-track {
+      height: 2px;
+      background: var(--separator);
+    }
+    .progress-fill {
+      height: 2px;
+      background: var(--blue);
+      transition: width 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+
+    /* ── EXERCISE VIEW ───────────────────────────────── */
+    .ex-view {
+      flex: 1;
+      padding: 20px 20px 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .phase-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 6px 12px;
+      border-radius: 100px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      width: fit-content;
+      background: var(--fill);
+      color: var(--label-secondary);
+    }
+    .badge-bw   { background: rgba(52,199,89,0.12);  color: #248a3d; }
+    .badge-db   { background: rgba(255,159,10,0.12);  color: #c77c00; }
+    .badge-mj   { background: rgba(255,59,48,0.12);   color: #d70015; }
+    .badge-main { background: rgba(0,113,227,0.12);   color: #0071e3; }
+    .phase-icon { font-size: 14px; }
+
+    /* GIF area */
+    .gif-wrap {
+      background: var(--card);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      aspect-ratio: 4 / 3;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      cursor: pointer;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.04);
+    }
+    .gif-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+    .gif-paused-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.25s ease;
+      pointer-events: none;
+      border-radius: var(--radius-lg);
+    }
+    .gif-paused-overlay.visible { opacity: 1; }
+    .gif-paused-overlay svg {
+      width: 52px; height: 52px;
+      fill: rgba(255,255,255,0.9);
+      filter: drop-shadow(0 2px 8px rgba(0,0,0,0.3));
+    }
+
+    .gif-placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      color: var(--label-tertiary);
+    }
+    .gif-placeholder .ico {
+      width: 48px; height: 48px;
+      background: var(--fill);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .gif-placeholder .ico svg { width: 24px; height: 24px; fill: var(--label-tertiary); }
+    .gif-placeholder span { font-size: 15px; }
+
+    .gif-hint {
+      font-size: 13px;
+      color: var(--label-tertiary);
+      text-align: center;
+      margin-top: -8px;
+    }
+
+    .ex-name {
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: 0.36px;
+      line-height: 1.14;
+    }
+    .ex-reps {
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--blue);
+      letter-spacing: -0.2px;
+    }
+    .ex-note {
+      font-size: 17px;
+      color: var(--label-secondary);
+      line-height: 1.47;
+    }
+
+    .btn-row {
+      margin-top: auto;
+      display: flex;
+      gap: 12px;
+      padding-top: 8px;
+    }
+
+    /* Apple-style buttons */
+    .btn-prev {
+      flex: 0 0 auto;
+      min-width: 56px;
+      min-height: 56px;
+      background: var(--fill);
+      border: none;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s, transform 0.1s;
+    }
+    .btn-prev svg { width: 22px; height: 22px; fill: none; stroke: var(--label); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+    .btn-prev:active { background: var(--fill-secondary); transform: scale(0.95); }
+
+    .btn-next {
+      flex: 1;
+      padding: 18px 24px;
+      min-height: 56px;
+      background: var(--blue);
+      color: #ffffff;
+      border: none;
+      border-radius: var(--radius-md);
+      font-size: 17px;
+      font-weight: 600;
+      cursor: pointer;
+      letter-spacing: -0.2px;
+      transition: background 0.15s, transform 0.1s;
+    }
+    .btn-next:active { background: var(--blue-hover); transform: scale(0.97); }
+
+    .btn-finish { background: var(--green); }
+    .btn-finish:active { background: var(--green-dark); transform: scale(0.97); }
+
+    /* ── REST TIMER ──────────────────────────────────── */
+    .rest-screen {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 24px;
+      gap: 24px;
+      text-align: center;
+    }
+    .rest-label {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--label-tertiary);
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+    }
+    .rest-circle {
+      position: relative;
+      width: 200px;
+      height: 200px;
+    }
+    .rest-circle svg {
+      width: 200px; height: 200px;
+      transform: rotate(-90deg);
+    }
+    .rest-circle-bg { fill: none; stroke: var(--fill); stroke-width: 6; }
+    .rest-circle-fg {
+      fill: none;
+      stroke: var(--blue);
+      stroke-width: 6;
+      stroke-linecap: round;
+      transition: stroke-dashoffset 1s linear;
+    }
+    .rest-time {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 60px;
+      font-weight: 300;     /* light weight — Apple Watch style */
+      color: var(--label);
+      font-variant-numeric: tabular-nums;
+      letter-spacing: -2px;
+    }
+    .rest-next-label {
+      font-size: 15px;
+      color: var(--label-tertiary);
+      font-weight: 500;
+    }
+    .rest-next-name {
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--label);
+      letter-spacing: -0.2px;
+    }
+    .btn-skip {
+      margin-top: 8px;
+      padding: 14px 36px;
+      min-height: 50px;
+      background: var(--fill);
+      border: none;
+      border-radius: var(--radius-md);
+      font-size: 17px;
+      font-weight: 600;
+      cursor: pointer;
+      color: var(--blue);
+      letter-spacing: -0.2px;
+      transition: background 0.15s, transform 0.1s;
+    }
+    .btn-skip:active { background: var(--fill-secondary); transform: scale(0.97); }
+
+    /* ── OVERVIEW PANEL ──────────────────────────────── */
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.25);
+      z-index: 100;
+      display: none;
+      align-items: flex-end;
+      transition: background 0.3s;
+    }
+    .overlay.open { display: flex; }
+
+    .overview-panel {
+      background: var(--card);
+      border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+      width: 100%;
+      max-height: 80vh;
+      overflow-y: auto;
+      padding: 16px 20px 36px;
+      -webkit-overflow-scrolling: touch;
+    }
+    .overview-handle {
+      width: 36px;
+      height: 5px;
+      background: rgba(60,60,67,0.3);
+      border-radius: 3px;
+      margin: 0 auto 20px;
+    }
+    .overview-title {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      letter-spacing: -0.2px;
+    }
+
+    .ov-phase-divider {
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--label-tertiary);
+      padding: 16px 0 8px;
+    }
+
+    .ov-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 8px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: background 0.1s;
+    }
+    .ov-item:active { background: var(--fill); }
+    .ov-item.current { background: rgba(0,113,227,0.06); }
+    .ov-item + .ov-item { border-top: 0.5px solid var(--separator); }
+
+    .ov-check {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      border: 2px solid rgba(60,60,67,0.18);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .ov-check.done { background: var(--green); border-color: var(--green); }
+    .ov-check.done svg { width: 14px; height: 14px; fill: none; stroke: #fff; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+    .ov-check.active { border-color: var(--blue); border-width: 2.5px; }
+
+    .ov-name { font-size: 17px; font-weight: 500; flex: 1; }
+    .ov-reps { font-size: 13px; color: var(--label-tertiary); white-space: nowrap; }
+
+    /* ── MODALS (frosted glass) ──────────────────────── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.25);
+      z-index: 200;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .modal-overlay.open { display: flex; }
+
+    .modal-box {
+      background: rgba(255,255,255,0.92);
+      -webkit-backdrop-filter: saturate(180%) blur(40px);
+      backdrop-filter: saturate(180%) blur(40px);
+      border-radius: var(--radius-md);
+      padding: 28px 24px 20px;
+      max-width: 320px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+    }
+    .modal-box h3 {
+      font-size: 17px;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+    .modal-box p {
+      font-size: 13px;
+      color: var(--label-secondary);
+      margin-bottom: 20px;
+      line-height: 1.4;
+    }
+    .modal-btns {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      border-top: 0.5px solid var(--separator);
+    }
+    .modal-btns button {
+      padding: 14px;
+      border: none;
+      background: none;
+      font-size: 17px;
+      cursor: pointer;
+      color: var(--blue);
+      font-weight: 400;
+      border-bottom: 0.5px solid var(--separator);
+    }
+    .modal-btns button:last-child { border-bottom: none; }
+    .modal-btns button.primary { font-weight: 600; }
+    .modal-btns button.destructive { color: var(--red); }
+    .modal-btns button:active { background: var(--fill); }
+
+    /* ── COMPLETION ──────────────────────────────────── */
+    .complete-body {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 40px 24px;
+      gap: 12px;
+    }
+    .trophy-ring {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--green), #2ed865);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 8px;
+      box-shadow: 0 4px 20px rgba(52,199,89,0.3);
+    }
+    .trophy-ring svg { width: 44px; height: 44px; fill: none; stroke: #fff; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+    .complete-body h2 {
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: 0.36px;
+    }
+    .complete-body p {
+      font-size: 17px;
+      color: var(--label-secondary);
+    }
+    .btn-home {
+      margin-top: 20px;
+      padding: 16px 40px;
+      min-height: 50px;
+      background: var(--blue);
+      color: #ffffff;
+      border: none;
+      border-radius: var(--radius-md);
+      font-size: 17px;
+      font-weight: 600;
+      cursor: pointer;
+      letter-spacing: -0.2px;
+      transition: background 0.15s, transform 0.1s;
+    }
+    .btn-home:active { background: var(--blue-hover); transform: scale(0.97); }
+
+    /* Loading spinner pulse */
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Fitness Tracker</h1>
-        <p>Coming soon.</p>
+
+<!-- ── HOME ─────────────────────────────────────────── -->
+<div id="home" class="screen active">
+  <div class="home-hero">
+    <h1>Tu Entrenamiento</h1>
+    <p>Elige la rutina de hoy</p>
+  </div>
+
+  <div class="resume-banner" id="resume-banner" style="display:none">
+    <p id="resume-text">Tienes un entrenamiento sin terminar.</p>
+    <div class="resume-btns">
+      <button class="btn-dismiss" onclick="dismissResume()">Empezar de nuevo</button>
+      <button class="btn-resume" onclick="resumeWorkout()">Continuar</button>
     </div>
+  </div>
+
+  <div class="day-cards">
+    <div class="day-card" onclick="startWorkout('push')">
+      <div class="day-icon day-icon-push">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </div>
+      <div class="day-info">
+        <h2>Push</h2>
+        <p>Pecho · Hombros · Triceps</p>
+      </div>
+      <div class="day-chevron"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
+    </div>
+
+    <div class="day-card" onclick="startWorkout('pull')">
+      <div class="day-icon day-icon-pull">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+      </div>
+      <div class="day-info">
+        <h2>Pull</h2>
+        <p>Espalda · Biceps · Deltoides posterior</p>
+      </div>
+      <div class="day-chevron"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
+    </div>
+
+    <div class="day-card" onclick="startWorkout('legs')">
+      <div class="day-icon day-icon-legs">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v4m-4 2l4 10m4-10l-4 10"/></svg>
+      </div>
+      <div class="day-info">
+        <h2>Piernas</h2>
+        <p>Cuadriceps · Isquiotibiales · Gluteos · Pantorrillas</p>
+      </div>
+      <div class="day-chevron"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── WORKOUT ──────────────────────────────────────── -->
+<div id="workout" class="screen">
+  <div class="w-header">
+    <button class="back-btn" onclick="confirmExit()" aria-label="Volver">
+      <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+    <span class="w-title" id="w-title"></span>
+    <span class="w-counter" id="w-counter" onclick="openOverview()" role="button" tabindex="0" aria-label="Ver todos los ejercicios"></span>
+  </div>
+  <div class="progress-track">
+    <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+  </div>
+  <div class="ex-view" id="ex-view"></div>
+</div>
+
+<!-- ── COMPLETE ─────────────────────────────────────── -->
+<div id="complete" class="screen">
+  <div class="w-header">
+    <button class="back-btn" onclick="goHome()" aria-label="Inicio">
+      <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+    <span class="w-title">Listo</span>
+    <span style="width:48px"></span>
+  </div>
+  <div class="complete-body">
+    <div class="trophy-ring">
+      <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+    <h2>Entrenamiento Completo</h2>
+    <p id="complete-msg">Excelente trabajo hoy.</p>
+    <button class="btn-home" onclick="goHome()">Volver al Inicio</button>
+  </div>
+</div>
+
+<!-- ── OVERVIEW ─────────────────────────────────────── -->
+<div class="overlay" id="overlay" onclick="closeOverview(event)">
+  <div class="overview-panel" id="overview-panel">
+    <div class="overview-handle"></div>
+    <div class="overview-title" id="ov-title">Ejercicios</div>
+    <div id="ov-list"></div>
+  </div>
+</div>
+
+<!-- ── MODAL: FINISH ───────────────────────────────── -->
+<div class="modal-overlay" id="modal-finish">
+  <div class="modal-box">
+    <h3>Terminar entrenamiento?</h3>
+    <p>Completaste todos los ejercicios. Muy bien!</p>
+    <div class="modal-btns">
+      <button onclick="closeModal('modal-finish')">Volver</button>
+      <button class="primary" onclick="confirmFinish()">Terminar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL: EXIT ─────────────────────────────────── -->
+<div class="modal-overlay" id="modal-exit">
+  <div class="modal-box">
+    <h3>Salir del entrenamiento?</h3>
+    <p>Tu progreso se guardara. Puedes continuar despues.</p>
+    <div class="modal-btns">
+      <button class="primary" onclick="closeModal('modal-exit')">Quedarme</button>
+      <button class="destructive" onclick="closeModal('modal-exit'); goHome();">Salir</button>
+    </div>
+  </div>
+</div>
+
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+//  DATA
+//
+//  GIF: set to ExerciseDB URL e.g. "https://exercisedb.dev/image/0001"
+//       or null for placeholder
+//
+//  rest: seconds to rest after exercise (0 = skip timer)
+// ═══════════════════════════════════════════════════════════════
+
+const PHASES = {
+  bw:   { label: "Calentamiento · Peso corporal",   css: "badge-bw",   icon: "🤸" },
+  db:   { label: "Calentamiento · Mancuernas 1kg",  css: "badge-db",   icon: "🔸" },
+  mj:   { label: "Calentamiento · Multi-articular", css: "badge-mj",   icon: "🔗" },
+  main: { label: "Entrenamiento Principal",          css: "badge-main", icon: "⭐" },
+};
+
+// Each step has a `search` key used to auto-fetch a GIF from ExerciseDB.
+// `gif` is used as a cache/override. If gif is set, the search is skipped.
+
+const WORKOUTS = {
+  push: {
+    name: "Push",
+    steps: [
+      { phase:"bw", name:"Circulos de Brazos",     reps:"10 reps — cada direccion",  note:"Circulos lentos y amplios. Deja que el hombro se suelte.",              gif:"https://static.exercisedb.dev/media/2zNKRUB.gif", search:"arm circles", rest:0 },
+      { phase:"bw", name:"Rotacion de Hombros",    reps:"10 adelante · 10 atras",    note:"Rota los hombros completamente, sin prisa.",                            gif:"https://static.exercisedb.dev/media/Uto7l43.gif", search:"shoulder stretch", rest:0 },
+      { phase:"bw", name:"Apertura de Pecho",       reps:"3 veces × 20 segundos",     note:"Cruza las manos detras de la espalda, levanta suave y abre el pecho.",  gif:"https://static.exercisedb.dev/media/uOV3Itw.gif", search:"chest stretch", rest:0 },
+      { phase:"db", name:"Elevaciones Laterales",   reps:"15 reps",                   note:"Codos ligeramente doblados. Sube hasta la altura del hombro, baja lento.", gif:"https://static.exercisedb.dev/media/DsgkuIt.gif", search:"dumbbell lateral raise", rest:30 },
+      { phase:"db", name:"Elevaciones Frontales",   reps:"15 reps",                   note:"Sube al frente hasta la altura del hombro. Sin balancear.",              gif:"https://static.exercisedb.dev/media/bpJL2Qs.gif", search:"dumbbell front raise", rest:30 },
+      { phase:"mj", name:"Flexion en Pared",        reps:"1 serie · 30 reps",         note:"Manos en la pared a la altura del pecho. Controlado — prepara las articulaciones.", gif:"https://static.exercisedb.dev/media/LEH9jxP.gif", search:"push up wall", rest:45 },
+      { phase:"mj", name:"Flexion en Pared",        reps:"1 serie · 20 reps",         note:"Segunda serie. Muevete con intencion, pecho hacia la pared.",           gif:"https://static.exercisedb.dev/media/LEH9jxP.gif", search:"push up wall", rest:45 },
+      { phase:"main", name:"Ejercicios por definir", reps:"—",                         note:"Tu rutina de push aparecera aqui cuando la agreguemos.",                gif:null, search:null, rest:0 },
+    ]
+  },
+  pull: {
+    name: "Pull",
+    steps: [
+      { phase:"bw", name:"Rotacion de Cuello",       reps:"5 reps — cada direccion",    note:"Lento y suave. Solo calentar el cuello antes de cargar la espalda.",    gif:"https://static.exercisedb.dev/media/GSDioYu.gif", search:"neck stretch", rest:0 },
+      { phase:"bw", name:"Retraccion Escapular",     reps:"10 reps · 3 seg cada una",   note:"Junta las escapulas firmemente. Siente la espalda alta activarse.",     gif:"https://static.exercisedb.dev/media/GSDioYu.gif", search:"scapular retraction", rest:0 },
+      { phase:"bw", name:"Gato-Vaca",                reps:"10 reps lentas",             note:"En cuatro puntos. Arquea y redondea la espalda suavemente.",             gif:"https://static.exercisedb.dev/media/GSDioYu.gif", search:"back stretch", rest:0 },
+      { phase:"db", name:"Remo Inclinado",           reps:"15 reps",                    note:"Inclinate desde la cadera, espalda recta. Tira los codos hacia atras.", gif:"https://static.exercisedb.dev/media/BJ0Hz5L.gif", search:"dumbbell bent over row", rest:30 },
+      { phase:"db", name:"Vuelos de Deltoides Posterior", reps:"15 reps",               note:"Inclinate ligeramente, abre los brazos a los lados. Controla la bajada.",gif:"https://static.exercisedb.dev/media/XUUD0Fs.gif", search:"dumbbell rear delt", rest:30 },
+      { phase:"mj", name:"Remo con Toalla / Banda",  reps:"1 serie · 30 reps",         note:"Ancla una toalla en la puerta y jala hacia ti. Enfocate en la espalda.",gif:"https://static.exercisedb.dev/media/bZGHsAZ.gif", search:"inverted row", rest:45 },
+      { phase:"mj", name:"Remo con Toalla / Banda",  reps:"1 serie · 20 reps",         note:"Segunda serie. Aprieta arriba en cada rep.",                            gif:"https://static.exercisedb.dev/media/bZGHsAZ.gif", search:"inverted row", rest:45 },
+      { phase:"main", name:"Ejercicios por definir", reps:"—",                          note:"Tu rutina de pull aparecera aqui cuando la agreguemos.",                gif:null, search:null, rest:0 },
+    ]
+  },
+  legs: {
+    name: "Piernas",
+    steps: [
+      { phase:"bw", name:"Circulos de Cadera",       reps:"10 reps — cada direccion",   note:"Manos en la cadera, circulos amplios. Afloja la articulacion.",          gif:"https://static.exercisedb.dev/media/Kpajagk.gif", search:"standing hip extension", rest:0 },
+      { phase:"bw", name:"Balanceo de Piernas",      reps:"10 reps — cada pierna",      note:"Apoyate en la pared. Balancea cada pierna adelante y atras, controlado.",gif:"https://static.exercisedb.dev/media/lCKm4Rs.gif", search:"leg raise", rest:0 },
+      { phase:"bw", name:"Rotacion de Tobillos",     reps:"10 reps — cada pie",         note:"Levanta el pie ligeramente y rota el tobillo en circulos completos.",    gif:"https://static.exercisedb.dev/media/uL9CsKm.gif", search:"ankle circles", rest:0 },
+      { phase:"db", name:"Sentadilla Copa",           reps:"10 reps · 3 seg abajo",     note:"Mancuernas al pecho. Baja lento, pausa abajo, sube con fuerza.",         gif:"https://static.exercisedb.dev/media/yn8yg1r.gif", search:"dumbbell goblet squat", rest:30 },
+      { phase:"db", name:"Peso Muerto Rumano",       reps:"15 reps",                    note:"Inclinate desde la cadera, espalda recta. Siente el estiramiento en isquiotibiales.", gif:"https://static.exercisedb.dev/media/rR0LJzx.gif", search:"dumbbell romanian deadlift", rest:30 },
+      { phase:"mj", name:"Sentadilla Libre",          reps:"1 serie · 30 reps",          note:"Rango completo de movimiento. Rodillas hacia afuera, pecho arriba.",     gif:"https://static.exercisedb.dev/media/3xK09Sk.gif", search:"bodyweight squat", rest:45 },
+      { phase:"mj", name:"Sentadilla Libre",          reps:"1 serie · 20 reps",          note:"Segunda serie. Controlado al bajar.",                                   gif:"https://static.exercisedb.dev/media/3xK09Sk.gif", search:"bodyweight squat", rest:45 },
+      { phase:"main", name:"Ejercicios por definir", reps:"—",                           note:"Tu rutina de piernas aparecera aqui cuando la agreguemos.",              gif:null, search:null, rest:0 },
+    ]
+  }
+};
+
+// ═══════════════════════════════════════════════════════════════
+//  GIF AUTO-FETCHER — queries ExerciseDB API and caches results
+// ═══════════════════════════════════════════════════════════════
+const GIF_CACHE_KEY = 'wk_gifs';
+let gifCache = {};
+
+function loadGifCache() {
+  try { gifCache = JSON.parse(localStorage.getItem(GIF_CACHE_KEY)) || {}; } catch(e) { gifCache = {}; }
+}
+
+function saveGifCache() {
+  try { localStorage.setItem(GIF_CACHE_KEY, JSON.stringify(gifCache)); } catch(e) {}
+}
+
+// Fetch one GIF URL from ExerciseDB by search term. Returns URL or null.
+async function fetchGifUrl(searchTerm) {
+  if (!searchTerm) return null;
+  if (gifCache[searchTerm]) return gifCache[searchTerm];
+  try {
+    const res = await fetch(
+      `https://exercisedb.dev/api/v1/exercises?search=${encodeURIComponent(searchTerm)}&limit=1&offset=0`
+    );
+    if (!res.ok) return null;
+    const json = await res.json();
+    const url = json.data && json.data[0] ? json.data[0].gifUrl : null;
+    if (url) { gifCache[searchTerm] = url; saveGifCache(); }
+    return url;
+  } catch(e) { return null; }
+}
+
+// Pre-fetch all GIFs for all workouts on page load (sequentially to avoid rate limits)
+async function prefetchAllGifs() {
+  loadGifCache();
+  const allSteps = [...WORKOUTS.push.steps, ...WORKOUTS.pull.steps, ...WORKOUTS.legs.steps];
+  // Deduplicate by search term
+  const uniqueSearches = [...new Set(allSteps.map(s => s.search).filter(Boolean))];
+  // Only fetch ones not in cache
+  const needed = uniqueSearches.filter(s => !gifCache[s]);
+
+  for (const term of needed) {
+    await fetchGifUrl(term);
+    // Stagger requests to avoid rate limiting
+    await new Promise(ok => setTimeout(ok, 600));
+  }
+
+  // Apply cached GIFs to all steps
+  applyGifsToSteps();
+
+  // Re-render if currently viewing a workout
+  if (currentDay !== null) render();
+}
+
+function applyGifsToSteps() {
+  for (const day of Object.values(WORKOUTS)) {
+    for (const step of day.steps) {
+      if (!step.gif && step.search && gifCache[step.search]) {
+        step.gif = gifCache[step.search];
+      }
+    }
+  }
+}
+
+// Get GIF for a step — returns cached URL or triggers async fetch
+function getStepGif(step) {
+  if (step.gif) return step.gif;
+  if (step.search && gifCache[step.search]) {
+    step.gif = gifCache[step.search];
+    return step.gif;
+  }
+  // Trigger async fetch (GIF will appear on next render)
+  if (step.search) {
+    fetchGifUrl(step.search).then(url => {
+      if (url) {
+        step.gif = url;
+        // Re-render if this step is currently displayed
+        if (currentDay && WORKOUTS[currentDay].steps[currentStep] === step) render();
+      }
+    });
+  }
+  return null;
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════════════════════
+let currentDay = null, currentStep = 0, restInterval = null;
+let gifPaused = false, gifOrigSrc = null, gifStaticSrc = null;
+
+// ═══════════════════════════════════════════════════════════════
+//  PERSISTENCE
+// ═══════════════════════════════════════════════════════════════
+function saveProgress() {
+  try { localStorage.setItem('wk', JSON.stringify({ d: currentDay, s: currentStep, t: Date.now() })); } catch(e) {}
+}
+function clearProgress() {
+  try { localStorage.removeItem('wk'); } catch(e) {}
+}
+function loadProgress() {
+  try {
+    const r = localStorage.getItem('wk');
+    if (!r) return null;
+    const d = JSON.parse(r);
+    return (Date.now() - d.t > 6*3600000) ? (clearProgress(), null) : d;
+  } catch(e) { return null; }
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  NAVIGATION
+// ═══════════════════════════════════════════════════════════════
+function showScreen(id) {
+  clearRest();
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+function goHome() { showScreen('home'); checkResume(); }
+
+function checkResume() {
+  const s = loadProgress();
+  const b = document.getElementById('resume-banner');
+  if (s && WORKOUTS[s.d]) {
+    const w = WORKOUTS[s.d];
+    document.getElementById('resume-text').textContent =
+      `Continuar ${w.name}? (ejercicio ${s.s + 1} de ${w.steps.length})`;
+    b.style.display = '';
+  } else b.style.display = 'none';
+}
+
+function resumeWorkout() {
+  const s = loadProgress();
+  if (s && WORKOUTS[s.d]) {
+    currentDay = s.d; currentStep = s.s;
+    document.getElementById('w-title').textContent = WORKOUTS[s.d].name;
+    render(); showScreen('workout');
+  }
+}
+
+function dismissResume() {
+  clearProgress();
+  document.getElementById('resume-banner').style.display = 'none';
+}
+
+function startWorkout(day) {
+  currentDay = day; currentStep = 0;
+  document.getElementById('w-title').textContent = WORKOUTS[day].name;
+  saveProgress(); render(); showScreen('workout');
+}
+
+function confirmExit() { document.getElementById('modal-exit').classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+// ═══════════════════════════════════════════════════════════════
+//  RENDER EXERCISE
+// ═══════════════════════════════════════════════════════════════
+function render() {
+  const steps = WORKOUTS[currentDay].steps;
+  const step  = steps[currentStep];
+  const total = steps.length;
+  const phase = PHASES[step.phase];
+  const isLast = currentStep === total - 1;
+
+  const resolvedGif = getStepGif(step);
+  gifPaused = false; gifOrigSrc = resolvedGif; gifStaticSrc = null;
+
+  const pct = Math.round(((currentStep + 1) / total) * 100);
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('w-counter').textContent = `${currentStep + 1} / ${total}`;
+
+  let gifHTML;
+  if (resolvedGif) {
+    gifHTML = `
+      <img id="gif-img" src="${resolvedGif}" alt="${step.name}" loading="lazy" />
+      <div class="gif-paused-overlay" id="gif-overlay">
+        <svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>
+      </div>`;
+  } else if (step.search) {
+    // GIF is being fetched
+    gifHTML = `
+      <div class="gif-placeholder">
+        <div class="ico" style="animation:pulse 1.5s infinite">
+          <svg viewBox="0 0 24 24"><path d="M12 2v4m0 12v4m-7.07-3.93l2.83-2.83m8.48-8.48l2.83-2.83M2 12h4m12 0h4m-3.93 7.07l-2.83-2.83M7.76 7.76L4.93 4.93" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+        </div>
+        <span>Cargando...</span>
+      </div>`;
+  } else {
+    gifHTML = `
+      <div class="gif-placeholder">
+        <div class="ico"><svg viewBox="0 0 24 24"><path d="M18 8h1a4 4 0 010 8h-1M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8zm6-6v6m4-6v6"/></svg></div>
+        <span>Sin imagen</span>
+      </div>`;
+  }
+
+  const prevBtn = currentStep > 0
+    ? `<button class="btn-prev" onclick="prevStep()" aria-label="Anterior"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></button>`
+    : '';
+
+  const nextCls = isLast ? 'btn-next btn-finish' : 'btn-next';
+  const nextLabel = isLast ? 'Terminar Entrenamiento' : 'Listo ✓';
+  const nextAction = isLast ? 'requestFinish()' : 'nextStep()';
+
+  document.getElementById('ex-view').innerHTML = `
+    <span class="phase-badge ${phase.css}"><span class="phase-icon">${phase.icon}</span> ${phase.label}</span>
+    <div class="gif-wrap" onclick="toggleGif()">${gifHTML}</div>
+    ${resolvedGif ? '<div class="gif-hint">Toca la imagen para pausar / reanudar</div>' : ''}
+    <div class="ex-name">${step.name}</div>
+    <div class="ex-reps">${step.reps}</div>
+    ${step.note ? `<div class="ex-note">${step.note}</div>` : ''}
+    <div class="btn-row">
+      ${prevBtn}
+      <button class="${nextCls}" onclick="${nextAction}">${nextLabel}</button>
+    </div>
+  `;
+  saveProgress();
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  GIF PAUSE / PLAY
+// ═══════════════════════════════════════════════════════════════
+function toggleGif() {
+  const img = document.getElementById('gif-img');
+  const ov  = document.getElementById('gif-overlay');
+  if (!img || !ov) return;
+  if (!gifPaused) {
+    if (!gifStaticSrc) {
+      try {
+        const c = document.createElement('canvas');
+        c.width = img.naturalWidth || img.width;
+        c.height = img.naturalHeight || img.height;
+        c.getContext('2d').drawImage(img, 0, 0);
+        gifStaticSrc = c.toDataURL();
+      } catch(e) { gifStaticSrc = ''; }
+    }
+    if (gifStaticSrc) img.src = gifStaticSrc;
+    ov.classList.add('visible');
+    gifPaused = true;
+  } else {
+    img.src = gifOrigSrc;
+    ov.classList.remove('visible');
+    gifPaused = false;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  STEP NAV
+// ═══════════════════════════════════════════════════════════════
+function nextStep() {
+  const step = WORKOUTS[currentDay].steps[currentStep];
+  if (currentStep < WORKOUTS[currentDay].steps.length - 1) {
+    step.rest > 0 ? showRest(step.rest, WORKOUTS[currentDay].steps[currentStep + 1]) : advance();
+  }
+}
+function prevStep()  { if (currentStep > 0) { clearRest(); currentStep--; render(); window.scrollTo(0,0); } }
+function advance()   { currentStep++; render(); window.scrollTo(0,0); }
+function requestFinish() { document.getElementById('modal-finish').classList.add('open'); }
+function confirmFinish() {
+  closeModal('modal-finish'); clearProgress();
+  document.getElementById('complete-msg').textContent = `Excelente trabajo con ${WORKOUTS[currentDay].name}!`;
+  showScreen('complete');
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  REST TIMER
+// ═══════════════════════════════════════════════════════════════
+const CIRC = 2 * Math.PI * 90;
+
+function showRest(secs, next) {
+  let rem = secs;
+  const view = document.getElementById('ex-view');
+  view.innerHTML = `
+    <div class="rest-screen">
+      <div class="rest-label">Descanso</div>
+      <div class="rest-circle">
+        <svg viewBox="0 0 200 200">
+          <circle class="rest-circle-bg" cx="100" cy="100" r="90"/>
+          <circle class="rest-circle-fg" id="rest-arc" cx="100" cy="100" r="90"
+            stroke-dasharray="${CIRC}" stroke-dashoffset="0"/>
+        </svg>
+        <div class="rest-time" id="rest-time">${rem}</div>
+      </div>
+      <div class="rest-next-label">Siguiente</div>
+      <div class="rest-next-name">${next.name}</div>
+      <button class="btn-skip" onclick="skipRest()">Saltar →</button>
+    </div>`;
+  updateArc(rem, secs);
+  restInterval = setInterval(() => {
+    rem--;
+    if (rem <= 0) { skipRest(); return; }
+    document.getElementById('rest-time').textContent = rem;
+    updateArc(rem, secs);
+  }, 1000);
+}
+
+function updateArc(rem, total) {
+  const a = document.getElementById('rest-arc');
+  if (a) a.style.strokeDashoffset = CIRC * (1 - rem / total);
+}
+function skipRest() { clearRest(); advance(); }
+function clearRest() { if (restInterval) { clearInterval(restInterval); restInterval = null; } }
+
+// ═══════════════════════════════════════════════════════════════
+//  OVERVIEW PANEL
+// ═══════════════════════════════════════════════════════════════
+function openOverview() {
+  const steps = WORKOUTS[currentDay].steps;
+  document.getElementById('ov-title').textContent = WORKOUTS[currentDay].name;
+  let html = '', lastP = '';
+  steps.forEach((s, i) => {
+    if (s.phase !== lastP) {
+      html += `<div class="ov-phase-divider">${PHASES[s.phase].icon} ${PHASES[s.phase].label}</div>`;
+      lastP = s.phase;
+    }
+    const done = i < currentStep, cur = i === currentStep;
+    const chk = done ? 'ov-check done' : (cur ? 'ov-check active' : 'ov-check');
+    const mark = done ? '<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>' : '';
+    html += `<div class="ov-item${cur ? ' current' : ''}" onclick="jumpTo(${i})">
+      <div class="${chk}">${mark}</div>
+      <div class="ov-name">${s.name}</div>
+      <div class="ov-reps">${s.reps}</div>
+    </div>`;
+  });
+  document.getElementById('ov-list').innerHTML = html;
+  document.getElementById('overlay').classList.add('open');
+}
+function closeOverview(e) { if (e.target === document.getElementById('overlay')) document.getElementById('overlay').classList.remove('open'); }
+function jumpTo(i) { document.getElementById('overlay').classList.remove('open'); clearRest(); currentStep = i; render(); window.scrollTo(0,0); }
+
+// ═══════════════════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════════════════
+loadGifCache();
+applyGifsToSteps();
+checkResume();
+prefetchAllGifs();
+</script>
 </body>
 </html>
