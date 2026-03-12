@@ -619,6 +619,114 @@
     }
     .btn-home:active { background: var(--blue-hover); transform: scale(0.97); }
 
+    /* ── ALTERNATIVES BUTTON ───────────────────────── */
+    .btn-alts {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 14px 20px;
+      background: linear-gradient(135deg, rgba(255,159,10,0.10), rgba(255,159,10,0.06));
+      border: 1.5px solid rgba(255,159,10,0.25);
+      border-radius: var(--radius-md);
+      font-size: 15px;
+      font-weight: 600;
+      color: #c77c00;
+      cursor: pointer;
+      transition: transform 0.1s, background 0.15s;
+      letter-spacing: -0.1px;
+    }
+    .btn-alts:active { transform: scale(0.97); background: rgba(255,159,10,0.14); }
+    .btn-alts svg { width: 18px; height: 18px; flex-shrink: 0; }
+
+    /* ── ALTERNATIVES PANEL (bottom sheet) ─────────── */
+    .alts-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.25);
+      z-index: 150;
+      display: none;
+      align-items: flex-end;
+      transition: background 0.3s;
+    }
+    .alts-overlay.open { display: flex; }
+
+    .alts-panel {
+      background: var(--card);
+      border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+      width: 100%;
+      max-height: 85vh;
+      overflow-y: auto;
+      padding: 16px 20px 36px;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .alts-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 6px;
+    }
+    .alts-header svg { width: 22px; height: 22px; flex-shrink: 0; }
+    .alts-title {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.2px;
+    }
+    .alts-subtitle {
+      font-size: 15px;
+      color: var(--label-secondary);
+      margin-bottom: 20px;
+      line-height: 1.4;
+    }
+
+    .alt-card {
+      background: var(--bg);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      margin-bottom: 14px;
+    }
+    .alt-card:last-child { margin-bottom: 0; }
+
+    .alt-card-gif {
+      width: 100%;
+      aspect-ratio: 16 / 10;
+      background: var(--fill-secondary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .alt-card-gif img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .alt-card-body {
+      padding: 14px 16px 16px;
+    }
+    .alt-card-number {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--orange);
+      margin-bottom: 4px;
+    }
+    .alt-card-name {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.2px;
+      margin-bottom: 6px;
+    }
+    .alt-card-note {
+      font-size: 15px;
+      color: var(--label-secondary);
+      line-height: 1.47;
+    }
+
     /* Loading spinner pulse */
     @keyframes pulse {
       0%, 100% { opacity: 1; }
@@ -722,6 +830,19 @@
   </div>
 </div>
 
+<!-- ── ALTERNATIVES PANEL ──────────────────────────── -->
+<div class="alts-overlay" id="alts-overlay" onclick="closeAlts(event)">
+  <div class="alts-panel" id="alts-panel">
+    <div class="overview-handle"></div>
+    <div class="alts-header">
+      <svg viewBox="0 0 24 24" fill="none" stroke="var(--orange)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 105.64-9.14L1 10"/></svg>
+      <div class="alts-title">Alternativas</div>
+    </div>
+    <div class="alts-subtitle" id="alts-subtitle">Si el equipo esta ocupado, haz una de estas:</div>
+    <div id="alts-list"></div>
+  </div>
+</div>
+
 <!-- ── MODAL: FINISH ───────────────────────────────── -->
 <div class="modal-overlay" id="modal-finish">
   <div class="modal-box">
@@ -778,7 +899,30 @@ const WORKOUTS = {
       { phase:"db", name:"Elevaciones Frontales",   reps:"15 reps",                   note:"Sube al frente hasta la altura del hombro. Sin balancear.",              gif:"https://static.exercisedb.dev/media/bpJL2Qs.gif", search:"dumbbell front raise", rest:30 },
       { phase:"mj", name:"Flexion en Pared",        reps:"1 serie · 30 reps",         note:"Manos en la pared a la altura del pecho. Controlado — prepara las articulaciones.", gif:"https://static.exercisedb.dev/media/LEH9jxP.gif", search:"push up wall", rest:45 },
       { phase:"mj", name:"Flexion en Pared",        reps:"1 serie · 20 reps",         note:"Segunda serie. Muevete con intencion, pecho hacia la pared.",           gif:"https://static.exercisedb.dev/media/LEH9jxP.gif", search:"push up wall", rest:45 },
-      { phase:"main", name:"Ejercicios por definir", reps:"—",                         note:"Tu rutina de push aparecera aqui cuando la agreguemos.",                gif:null, search:null, rest:0 },
+      { phase:"main", name:"Press de Banca Plano", reps:"4 series · 6-10 reps", note:"Baja la barra controlado al pecho, sube explosivo. Pies firmes en el suelo, escapulas apretadas contra el banco.", gif:null, search:"barbell bench press", rest:45, alts:[
+        { name:"Press con Mancuernas", note:"Mismo movimiento pero con mancuernas. Baja hasta que los codos queden a la altura del pecho, sube junto. Ventaja: mayor rango de movimiento.", search:"dumbbell bench press", gif:null },
+        { name:"Floor Press con Mancuernas", note:"Acuestate en el suelo con mancuernas. Baja hasta que los codos toquen el piso, sube. Elimina el rebote — puro pecho y triceps.", search:"dumbbell floor press", gif:null }
+      ]},
+      { phase:"main", name:"Press de Banca Inclinado", reps:"4 series · 6-10 reps", note:"Banco a 30-45 grados. Baja la barra hasta el pecho alto, sube controlado. Enfoca la parte superior del pecho.", gif:null, search:"incline barbell bench press", rest:45, alts:[
+        { name:"Press Inclinado con Mancuernas", note:"Misma inclinacion de 30-45 grados pero con mancuernas. Baja amplio, sube juntando arriba. Mejor activacion del pecho superior.", search:"dumbbell incline bench press", gif:null },
+        { name:"Landmine Press", note:"Barra anclada en una esquina. De pie, empuja con una mano desde el hombro hacia arriba y adelante. Trabaja pecho alto y hombros.", search:"landmine press", gif:null }
+      ]},
+      { phase:"main", name:"Fondos (Dips)", reps:"4 series · 6-10 reps", note:"Inclinate ligeramente hacia adelante para enfatizar pecho. Baja hasta que los codos pasen 90 grados, sube fuerte.", gif:null, search:"chest dip", rest:45, alts:[
+        { name:"Fondos en Banco", note:"Manos en un banco detras de ti, pies en el suelo o elevados. Baja flexionando los codos a 90 grados, sube. Mas facil pero mismo patron.", search:"bench dip", gif:null },
+        { name:"Flexiones Agarre Cerrado", note:"Manos juntas debajo del pecho. Baja controlado, sube explosivo. Trabaja pecho interno y triceps.", search:"diamond push up", gif:null }
+      ]},
+      { phase:"main", name:"Elevaciones Laterales", reps:"4 series · 6-10 reps", note:"Codos ligeramente doblados, sube hasta la altura del hombro. Controla la bajada — no dejes caer.", gif:null, search:"dumbbell lateral raise", rest:45, alts:[
+        { name:"Elevacion Lateral con Cable", note:"Polea baja, tira hacia el lado con un brazo. El cable mantiene tension constante durante todo el movimiento.", search:"cable lateral raise", gif:null },
+        { name:"Elevacion Lateral con Banda", note:"Pisa una banda elastica, sube los brazos a los lados. Cuanta mas arriba, mas resistencia. Excelente alternativa portatil.", search:"band lateral raise", gif:null }
+      ]},
+      { phase:"main", name:"Press Militar", reps:"4 series · 6-10 reps", note:"De pie, barra desde los hombros hacia arriba. Core apretado, gluteos firmes. No arquees la espalda.", gif:null, search:"barbell overhead press", rest:45, alts:[
+        { name:"Press con Mancuernas Sentado", note:"Sentado con respaldo vertical. Mancuernas a la altura de los hombros, sube hasta extender los brazos. Mas estable que de pie.", search:"dumbbell shoulder press", gif:null },
+        { name:"Arnold Press", note:"Empieza con las palmas hacia ti al nivel del pecho. Mientras subes, rota las manos hasta que las palmas miren al frente arriba. Trabaja los 3 angulos del hombro.", search:"arnold press", gif:null }
+      ]},
+      { phase:"main", name:"Extension de Triceps", reps:"4 series · 6-10 reps", note:"Polea alta, extiende los codos completamente abajo. Sin mover los hombros — solo se mueven los antebrazos.", gif:null, search:"tricep pushdown", rest:45, alts:[
+        { name:"Extension sobre la Cabeza", note:"Una mancuerna con ambas manos detras de la cabeza. Extiende los codos hacia arriba. Estira el triceps al maximo en la posicion baja.", search:"dumbbell overhead triceps extension", gif:null },
+        { name:"Patada de Triceps", note:"Inclinado, codo pegado al cuerpo. Extiende el antebrazo hacia atras hasta que el brazo quede recto. Aprieta arriba 1 segundo.", search:"dumbbell kickback", gif:null }
+      ]},
     ]
   },
   pull: {
@@ -840,33 +984,37 @@ async function fetchGifUrl(searchTerm) {
 }
 
 // Pre-fetch all GIFs for all workouts on page load (sequentially to avoid rate limits)
+// Collect all searchable items (steps + alternatives)
+function getAllSearchables() {
+  const items = [];
+  for (const day of Object.values(WORKOUTS)) {
+    for (const step of day.steps) {
+      items.push(step);
+      if (step.alts) items.push(...step.alts);
+    }
+  }
+  return items;
+}
+
 async function prefetchAllGifs() {
   loadGifCache();
-  const allSteps = [...WORKOUTS.push.steps, ...WORKOUTS.pull.steps, ...WORKOUTS.legs.steps];
-  // Deduplicate by search term
-  const uniqueSearches = [...new Set(allSteps.map(s => s.search).filter(Boolean))];
-  // Only fetch ones not in cache
+  const allItems = getAllSearchables();
+  const uniqueSearches = [...new Set(allItems.map(s => s.search).filter(Boolean))];
   const needed = uniqueSearches.filter(s => !gifCache[s]);
 
   for (const term of needed) {
     await fetchGifUrl(term);
-    // Stagger requests to avoid rate limiting
     await new Promise(ok => setTimeout(ok, 600));
   }
 
-  // Apply cached GIFs to all steps
   applyGifsToSteps();
-
-  // Re-render if currently viewing a workout
   if (currentDay !== null) render();
 }
 
 function applyGifsToSteps() {
-  for (const day of Object.values(WORKOUTS)) {
-    for (const step of day.steps) {
-      if (!step.gif && step.search && gifCache[step.search]) {
-        step.gif = gifCache[step.search];
-      }
+  for (const item of getAllSearchables()) {
+    if (!item.gif && item.search && gifCache[item.search]) {
+      item.gif = gifCache[item.search];
     }
   }
 }
@@ -1017,6 +1165,10 @@ function render() {
     <div class="ex-name">${step.name}</div>
     <div class="ex-reps">${step.reps}</div>
     ${step.note ? `<div class="ex-note">${step.note}</div>` : ''}
+    ${step.alts ? `<button class="btn-alts" onclick="openAlts()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 105.64-9.14L1 10"/></svg>
+      Equipo ocupado? Ver alternativas
+    </button>` : ''}
     <div class="btn-row">
       ${prevBtn}
       <button class="${nextCls}" onclick="${nextAction}">${nextLabel}</button>
@@ -1049,6 +1201,46 @@ function toggleGif() {
     img.src = gifOrigSrc;
     ov.classList.remove('visible');
     gifPaused = false;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  ALTERNATIVES PANEL
+// ═══════════════════════════════════════════════════════════════
+function getAltGifHTML(alt) {
+  const url = getStepGif(alt);
+  if (url) return `<img src="${url}" alt="${alt.name}" loading="lazy" />`;
+  if (alt.search) return `<div class="gif-placeholder"><div class="ico" style="animation:pulse 1.5s infinite"><svg viewBox="0 0 24 24"><path d="M12 2v4m0 12v4m-7.07-3.93l2.83-2.83m8.48-8.48l2.83-2.83M2 12h4m12 0h4m-3.93 7.07l-2.83-2.83M7.76 7.76L4.93 4.93" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg></div><span>Cargando...</span></div>`;
+  return `<div class="gif-placeholder"><span>Sin imagen</span></div>`;
+}
+
+function openAlts() {
+  const step = WORKOUTS[currentDay].steps[currentStep];
+  if (!step.alts) return;
+
+  document.getElementById('alts-subtitle').textContent =
+    `Si el equipo para ${step.name} esta ocupado, haz una de estas:`;
+
+  let html = '';
+  step.alts.forEach((alt, i) => {
+    html += `
+      <div class="alt-card">
+        <div class="alt-card-gif">${getAltGifHTML(alt)}</div>
+        <div class="alt-card-body">
+          <div class="alt-card-number">Alternativa ${i + 1}</div>
+          <div class="alt-card-name">${alt.name}</div>
+          <div class="alt-card-note">${alt.note}</div>
+        </div>
+      </div>`;
+  });
+
+  document.getElementById('alts-list').innerHTML = html;
+  document.getElementById('alts-overlay').classList.add('open');
+}
+
+function closeAlts(e) {
+  if (e.target === document.getElementById('alts-overlay')) {
+    document.getElementById('alts-overlay').classList.remove('open');
   }
 }
 
